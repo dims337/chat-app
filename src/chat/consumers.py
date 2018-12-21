@@ -14,10 +14,11 @@ class ChatConsumer(WebsocketConsumer):
         content = {
             'messages': self.messages_to_json(messages)
         }
-        self.send_message(content)
-
+        self.send_chat_message(content) #to send the messages out
+        
+        #create a new message
     def new_message(self, data):
-        author = data['from']
+        author = data['from'] #from = username of logged in user
         author_user = User.objects.filter(username=author)[0]
         message = Message.objects.create(author=author_user, content=data['message'])
         content ={
@@ -65,10 +66,9 @@ class ChatConsumer(WebsocketConsumer):
     # Receive message from WebSocket
     def receive(self, text_data):
         data = json.loads(text_data)
-        self.commands[data['command']](self, data)
+        self.commands[data['command']](self, data) #will decide wether it is fetch or new message
 
     def send_chat_message(self, message):    
-        message = data['message']
 
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
